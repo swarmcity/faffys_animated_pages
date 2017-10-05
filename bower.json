@@ -1,0 +1,19 @@
+{
+  "name": "faffys-animated-pages",
+  "description": "Page Transitions with Web Animations API",
+  "main": "faffys-animated-pages.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0",
+    "web-animations-js": "^2.3.1",
+    "app-route": "PolymerElements/app-route#2.0-preview"
+  },
+  "devDependencies": {
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.4"
+  },
+  "resolutions": {
+    "polymer": "^2.0.0",
+    "iron-location": "1 - 2"
+  }
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>faffys-animated-pages demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../faffys-animated-pages.html">
+
+    <custom-style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+        html, body{
+          padding: 0px;
+          height: 100%;
+        }
+        .pages{
+          min-height: 100%;
+          background-color: cornflowerblue;
+        }
+      </style>
+    </custom-style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic faffys-animated-pages demo</h3>
+      <demo-snippet>
+        <template>
+          <faffys-animated-pages
+            class="pages"
+            selected="[[page]]">
+          </faffys-animated-pages>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>
