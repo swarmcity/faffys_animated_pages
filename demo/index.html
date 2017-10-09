@@ -1,42 +1,60 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>faffys-animated-pages demo</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <title>faffys-animated-pages demo</title>
 
-    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-    <link rel="import" href="../faffys-animated-pages.html">
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-    <custom-style>
-      <style is="custom-style" include="demo-pages-shared-styles">
-        html, body{
-          padding: 0px;
-          height: 100%;
-        }
-        .pages{
-          min-height: 100%;
-          background-color: cornflowerblue;
-        }
-      </style>
-    </custom-style>
-  </head>
-  <body>
-    <div class="vertical-section-container centered">
-      <h3>Basic faffys-animated-pages demo</h3>
-      <demo-snippet>
-        <p>Click on a page to advance to the next one.</p>
-        <template>
-          <faffys-animated-pages
-            class="pages"
-            selected="[[page]]">
-          </faffys-animated-pages>
-        </template>
-      </demo-snippet>
-    </div>
-  </body>
+  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+  <link rel="import" href="../faffys-animated-pages.html">
+
+  <custom-style>
+    <style is="custom-style" include="demo-pages-shared-styles">
+      html,
+      body {
+        padding: 0px;
+        height: 100%;
+      }
+
+      .pages {
+        background-color: cornflowerblue;
+        width: 100%;
+        height: 200px;
+        font-size: 50px;
+        color: white;
+        text-align: center;
+      }
+
+      .pages div {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    </style>
+  </custom-style>
+</head>
+
+<body>
+  <div class="vertical-section-container centered">
+    <h3>Basic faffys-animated-pages demo</h3>
+    <demo-snippet>
+      <p>Click on a page to advance to the next one.</p>
+      <template>
+        <faffys-animated-pages class="pages" selected="[[page]]">
+            <div>One</div>
+            <div>Two</div>
+            <div>Three</div>
+        </faffys-animated-pages>
+      </template>
+    </demo-snippet>
+  </div>
+</body>
+
 </html>
