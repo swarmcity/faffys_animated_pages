@@ -47,13 +47,6 @@
       static get properties() {
         return {
           /**
-          * The page we are on now
-          */
-          page: {
-            type: String,
-            observer: '_page'
-          },
-          /**
           * The animation request
           */
           animation: {
@@ -72,6 +65,13 @@
             notify: true
           },
           /**
+          * True if the page is animating
+          */
+          animating: {
+            type: Boolean,
+            value: false
+          },
+          /**
           * Path is the page path
           * @type {String}
           */
@@ -79,13 +79,14 @@
             type: String,
             value: 'src/pages/page-',
           },
-          /**
-          * True if the page is animating
-          */
-          animating: {
-            type: Boolean,
-            value: false
+          route: {
+            type: Object,
+            observer: '_page'
           },
+          /**
+          * The route
+          * @type {String}
+          */
           /**
           * an array of the page history to a length of 2 
           * @type {String}
@@ -102,6 +103,22 @@
         const loadPath = `${this.path}${this.animation.to}.html`
         this.loading = true;
         Polymer.importHref(loadPath, this._loadComplete.bind(this), this._loadFailed.bind(this), false);
+      }
+
+      _animateBack(pageHistory){
+          this.pageHistory.push(this.route.path);
+          if(this.pageHistory.length > 2){
+            this.pageHistory.shift();
+          }
+
+          let animateFrom = this.$.pages.assignedNodes().find(e => e.id === pageHistory[0].split('/').join(""));
+          let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.route.path.split('/').join(""));
+
+          if(animateFrom.id != animateTo.id){
+            console.log('Animate me');
+            console.log('From: '+ animateFrom.id);
+            console.log('To: ' + animateTo.id);
+          } 
       }
 
       _loadComplete(e) {
@@ -165,23 +182,20 @@
       _loadFailed(err) {
         console.log(err)
       }
+
       _page() {
-        // only log this is the back button is used!
         if(this.animating == false){
-          console.log('You hit back');
+          this._animateBack(this.pageHistory);
+        } else {
+          this.pageHistory.push(this.route.path);
+          if(this.pageHistory.length > 2){
+            this.pageHistory.shift();
+          }
         }
         // you just landed or hit refresh
-        if(this.pageHistory[0] == this.pageHistory[1] || this.pageHistory.length < 1){
+        if((this.pageHistory[0] == this.pageHistory[1]) || this.pageHistory.length < 1){
           console.log('You just landed or refreshed');
         }
-
-        // what was the previous page?
-        this.pageHistory.push(this.route.path);
-        if(this.pageHistory.length > 2){
-          this.pageHistory.shift();
-        }
-        
-        console.log(this.pageHistory);
 
         const pages = Polymer.dom(this.$.pages).getDistributedNodes();
         for (let page, i = 0; page = pages[i]; i++) {
