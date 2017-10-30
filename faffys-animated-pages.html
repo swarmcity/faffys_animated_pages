@@ -9,11 +9,11 @@
 <dom-module id="faffys-animated-pages">
   <template>
     <style>
-       :host {
+      :host {
         display: block;
       }
 
-       :host> ::slotted(*) {
+      :host> ::slotted(*) {
         position: absolute;
         top: 0;
         left: 0;
@@ -21,11 +21,11 @@
         right: 0;
       }
 
-       :host> ::slotted(:not(.page):not(.animating)) {
+      :host> ::slotted(:not(.page):not(.animating)) {
         display: none !important;
       }
 
-       :host> ::slotted(.animating) {
+      :host> ::slotted(.animating) {
         pointer-events: none;
       }
     </style>
@@ -42,7 +42,7 @@
     * @polymer
     * @demo demo/index.html
     */
-    class WaapiPages extends Polymer.Element {
+    class FaffysAnimatedPages extends Polymer.Element {
       static get is() { return 'faffys-animated-pages'; }
       static get properties() {
         return {
@@ -91,7 +91,7 @@
           * an array of the page history to a length of 2 
           * @type {String}
           */
-          pageHistory:{
+          pageHistory: {
             type: Array,
             value: []
           }
@@ -105,18 +105,26 @@
         Polymer.importHref(loadPath, this._loadComplete.bind(this), this._loadFailed.bind(this), false);
       }
 
-      _animateBack(pageHistory){
-          this.pageHistory.push(this.route.path);
-          if(this.pageHistory.length > 2){
-            this.pageHistory.shift();
-          }
-
-          let animateFrom = this.$.pages.assignedNodes().find(e => e.id === pageHistory[0].split('/').join(""));
-          let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.route.path.split('/').join(""));
-
-          if(animateFrom.id != animateTo.id){
-            this._animate(animateFrom, animateTo, 'backwards');
-          } 
+      _animateBack(pageHistory) {
+        this.pageHistory.push(this.route.path);
+        if (this.pageHistory.length > 2) {
+          this.pageHistory.shift();
+        }
+        let index = this.pageHistory.indexOf("/");
+        if (index !== -1) {
+          this.pageHistory[index] = "/welcome/";
+        }
+        let animateFrom = this.$.pages.assignedNodes().find(e => e.id === pageHistory[0].split('/').join(""));
+        let animateTo;
+        if (this.route.path == "/") {
+          animateTo = this.$.pages.assignedNodes().find(e => e.id === 'welcome');
+        }
+        else {
+          animateTo = this.$.pages.assignedNodes().find(e => e.id === this.route.path.split('/').join(""));
+        }
+        if (animateFrom.id != animateTo.id) {
+          this._animate(animateFrom, animateTo, 'backwards');
+        }
       }
 
       _loadComplete(e) {
@@ -126,7 +134,7 @@
         this._animate(animateFrom, animateTo, 'forwards');
       }
 
-      _animate(animateFrom, animateTo, direction){
+      _animate(animateFrom, animateTo, direction) {
         this.animating = true;
         // add animating class to outgoing and incoming pages.
         animateFrom.classList && animateFrom.classList.add('animating');
@@ -170,15 +178,15 @@
 
           // remove animating class animateto page
           animateTo.classList && animateTo.classList.remove('animating');
-        //change route
-        // only set this if we are going forward
-        if(direction == 'forwards'){
-          console.log(direction);
-          this.set('route.path', this.animation.to + '/');
-        }
-        
-        //this.route.path = '/' + this.animation.to + '/'
-        this.animating = false;
+          //change route
+          // only set this if we are going forward
+          if (direction == 'forwards') {
+            console.log(direction);
+            this.set('route.path', this.animation.to + '/');
+          }
+
+          //this.route.path = '/' + this.animation.to + '/'
+          this.animating = false;
         };
 
       }
@@ -188,29 +196,52 @@
       }
 
       _page() {
-        if(this.animating == false){
+        if (this.animating == false && this.pageHistory.length > 1) {
           this._animateBack(this.pageHistory);
         } else {
           this.pageHistory.push(this.route.path);
-          if(this.pageHistory.length > 2){
+          if (this.pageHistory.length > 2) {
             this.pageHistory.shift();
           }
         }
         // you just landed or hit refresh
-        if((this.pageHistory[0] == this.pageHistory[1]) || this.pageHistory.length < 1){
+        if ((this.pageHistory[0] == this.pageHistory[1]) || this.pageHistory.length < 1) {
           console.log('You just landed or refreshed');
         }
-
         const pages = Polymer.dom(this.$.pages).getDistributedNodes();
+        let startPage = true;
         for (let page, i = 0; page = pages[i]; i++) {
-          if (this.page == page.id) {
-            page.classList && page.classList.add('page');
-          } else {
-            page.classList && page.classList.remove('page');
-            page.classList && page.classList.remove('animating');
+          if (page) {
+            if (this.route.path.split('/').join('') == page.id) {
+              startPage = false;
+            }
+          }
+        }
+        if (startPage) {
+          for (let page, i = 0; page = pages[i]; i++) {
+            if (page) {
+              if (page.id == 'welcome') {
+                page.classList && page.classList.add('page');
+              }
+              else {
+                page.classList && page.classList.remove('animating');
+              }
+            }
+          }
+        }
+        else {
+          for (let page, i = 0; page = pages[i]; i++) {
+            if (page) {
+              if (this.route.path.split('/').join('') == page.id) {
+                page.classList && page.classList.add('page');
+              }
+              else {
+                page.classList && page.classList.remove('animating');
+              }
+            }
           }
         }
       }
-    } window.customElements.define(WaapiPages.is, WaapiPages);
+    } window.customElements.define(FaffysAnimatedPages.is, FaffysAnimatedPages);
   </script>
 </dom-module>
