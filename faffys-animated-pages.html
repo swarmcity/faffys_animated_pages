@@ -115,27 +115,25 @@
           let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.route.path.split('/').join(""));
 
           if(animateFrom.id != animateTo.id){
-            console.log('Animate me');
-            console.log('From: '+ animateFrom.id);
-            console.log('To: ' + animateTo.id);
+            this._animate(animateFrom, animateTo);
           } 
       }
 
       _loadComplete(e) {
         this.loading = false;
-        this.animating = true;
         let animateFrom = this.$.pages.assignedNodes().find(e => e.id === this.animation.from);
         let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.animation.to);
+        this._animate(animateFrom, animateTo);
+      }
 
+      _animate(animateFrom, animateTo){
+        this.animating = true;
         // add animating class to outgoing and incoming pages.
         animateFrom.classList && animateFrom.classList.add('animating');
         animateTo.classList && animateTo.classList.add('animating');
-
-
         // notify all pages of running exit animation
         this.animation.exitPlaying = true;
         this.notifyPath('animation.exitPlaying');
-
         // do exit animation of outgoing page    
         let exitAnimation = animateFrom.animate
           (
@@ -160,9 +158,10 @@
           // notify all pages of finished exit animation
           this.animation.exitPlaying = false;
           this.notifyPath('animation.exitPlaying');
-
           // remove animating class from the animateFrom page
           animateFrom.classList && animateFrom.classList.remove('animating');
+          // TODO: the animated from needs removing or hiding from the dom
+          // or discover why is it still visable when animating is removed?
         }
 
         entryAnimation.onfinish = () => {
@@ -172,13 +171,14 @@
 
           // remove animating class animateto page
           animateTo.classList && animateTo.classList.remove('animating');
-
         //change route
         this.set('route.path', this.animation.to + '/');
+        //this.route.path = '/' + this.animation.to + '/'
         this.animating = false;
         };
 
       }
+
       _loadFailed(err) {
         console.log(err)
       }
