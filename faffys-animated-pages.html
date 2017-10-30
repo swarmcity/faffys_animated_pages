@@ -160,8 +160,8 @@
           this.notifyPath('animation.exitPlaying');
           // remove animating class from the animateFrom page
           animateFrom.classList && animateFrom.classList.remove('animating');
-          // TODO: the animated from needs removing or hiding from the dom
-          // or discover why is it still visable when animating is removed?
+          animateFrom.classList && animateFrom.classList.remove('page');
+        // TODO: why do wse need page and animating???
         }
 
         entryAnimation.onfinish = () => {
