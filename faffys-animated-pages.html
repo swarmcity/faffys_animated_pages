@@ -115,7 +115,7 @@
           let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.route.path.split('/').join(""));
 
           if(animateFrom.id != animateTo.id){
-            this._animate(animateFrom, animateTo);
+            this._animate(animateFrom, animateTo, 'backwards');
           } 
       }
 
@@ -123,10 +123,10 @@
         this.loading = false;
         let animateFrom = this.$.pages.assignedNodes().find(e => e.id === this.animation.from);
         let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.animation.to);
-        this._animate(animateFrom, animateTo);
+        this._animate(animateFrom, animateTo, 'forwards');
       }
 
-      _animate(animateFrom, animateTo){
+      _animate(animateFrom, animateTo, direction){
         this.animating = true;
         // add animating class to outgoing and incoming pages.
         animateFrom.classList && animateFrom.classList.add('animating');
@@ -172,7 +172,12 @@
           // remove animating class animateto page
           animateTo.classList && animateTo.classList.remove('animating');
         //change route
-        this.set('route.path', this.animation.to + '/');
+        // only set this if we are going forward
+        if(direction == 'forwards'){
+          console.log(direction);
+          this.set('route.path', this.animation.to + '/');
+        }
+        
         //this.route.path = '/' + this.animation.to + '/'
         this.animating = false;
         };
