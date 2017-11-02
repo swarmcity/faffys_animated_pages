@@ -46,15 +46,11 @@
       static get is() { return 'faffys-animated-pages'; }
       static get properties() {
         return {
-          /**
-          * The animation request
-          */
-          animation: {
+          route: {
             type: Object,
-            observer: '_load',
-            reflectToAttribute: true,
-            notify: true,
+            observer: '_routeChanged'
           },
+
           /**
           * True if the animate to page is loading
           */
@@ -79,168 +75,160 @@
             type: String,
             value: 'src/pages/page-',
           },
-          /**
-          * The route
-          * @type {String}
-          */
-          route: {
-            type: Object,
-            observer: '_page'
-          },
-          /**
-          * an array of the page history to a length of 2 
-          * @type {String}
-          */
-          pageHistory: {
+          routeHistory: {
             type: Array,
-            value: []
+            value: [],
+            notify: true,
+          },
+          toLoad: {
+            type: String,
+          },
+          startPage: {
+            type: String,
+            value: 'welcome'
+          },
+          allFinished: {
+            type: Object,
+            value: { exit: false, entry: false },
+          },
+          animations: {
+            type: Object,
+          },
+          exitPlaying: {
+            type: Boolean,
+            notify: true,
+          },
+          entryPlaying: {
+            type: Boolean,
+            notify: true,
           }
 
         };
       }
 
-      _load() {
-        const loadPath = `${this.path}${this.animation.to}.html`
-        this.loading = true;
-        Polymer.importHref(loadPath, this._loadComplete.bind(this), this._loadFailed.bind(this), false);
+      _routeChanged() {
+        if (this.route.path == '/') {
+          this.toLoad = this.startPage;
+        } else {
+          this.toLoad = this.route.path.split('/').join('');
+        }
+        this._routeHistory();
+        this._importPage();
       }
 
-      _animateBack(pageHistory) {
-        this.pageHistory.push(this.route.path);
-        if (this.pageHistory.length > 2) {
-          this.pageHistory.shift();
+      _routeHistory() {
+        let temp = this.routeHistory;
+        if (this.route.path == '/') {
+          temp.push(this.startPage);
+        } else {
+          temp.push(this.route.path.split('/').join(''));
         }
-        let index = this.pageHistory.indexOf("/");
-        if (index !== -1) {
-          this.pageHistory[index] = "/welcome/";
+
+        if (temp.length < 2) {
+          this.routeHistory = [
+            temp[0],
+          ]
         }
-        let animateFrom = this.$.pages.assignedNodes().find(e => e.id === pageHistory[0].split('/').join(""));
-        let animateTo;
-        if (this.route.path == "/") {
-          animateTo = this.$.pages.assignedNodes().find(e => e.id === 'welcome');
+        else if (temp.length < 3) {
+          this.routeHistory = [
+            temp[0],
+            temp[1],
+          ]
         }
         else {
-          animateTo = this.$.pages.assignedNodes().find(e => e.id === this.route.path.split('/').join(""));
+          this.routeHistory = [
+            temp[1],
+            temp[2],
+          ]
         }
-        if (animateFrom.id != animateTo.id) {
-          this._animate(animateFrom, animateTo, 'backwards');
+        if (this.routeHistory.length > 2) {
+          this.routeHistory.shift();
         }
-      }
+      };
+
+      _importPage() {
+        const loadPath = `${this.path}${this.toLoad}.html`;
+        Polymer.importHref(loadPath, this._loadComplete.bind(this), this._loadFailed.bind(this), false);
+      };
 
       _loadComplete(e) {
-        this.loading = false;
-        let animateFrom = this.$.pages.assignedNodes().find(e => e.id === this.animation.from);
-        let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.animation.to);
-        this._animate(animateFrom, animateTo, 'forwards');
+        if (this.routeHistory.length > 1 && this.routeHistory[0] != this.routeHistory[1]) {
+          let animateFrom = this.$.pages.assignedNodes().find(e => e.id === this.routeHistory[0]);
+          let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.routeHistory[1]);
+          this._animate(animateFrom, animateTo);
+        }
+        else {
+          let showPage = this.$.pages.assignedNodes().find(e => e.id === this.toLoad);
+          showPage.classList && showPage.classList.add('page');
+        }
+
       }
 
-      _animate(animateFrom, animateTo, direction) {
-        this.animating = true;
+      _animate(animateFrom, animateTo) {
         // add animating class to outgoing and incoming pages.
         animateFrom.classList && animateFrom.classList.add('animating');
         animateTo.classList && animateTo.classList.add('animating');
+        animateFrom.classList && animateFrom.classList.add('page');
+        animateTo.classList && animateTo.classList.add('page');
         // notify all pages of running exit animation
-        this.animation.exitPlaying = true;
-        this.notifyPath('animation.exitPlaying');
-        // do exit animation of outgoing page    
+
+        this.entryPlaying = true;
+        this.exitPlaying = true;
+
+        // prepare exit and entry animations  
         let exitAnimation = animateFrom.animate
           (
-          this.animation.descriptionArray,
-          this.animation.descriptionObject
+          this.animations.exitAnimation.descriptionArray,
+          this.animations.exitAnimation.descriptionObject
           );
-        exitAnimation.play();
-
-        // notify all pages of running entry animation
-        this.animation.entryPlaying = true;
-        this.notifyPath('animation.entryPlaying');
-
-        // do entry animation of incoming page
         let entryAnimation = animateTo.animate
           (
-          animateTo.entryAnimation.descriptionArray,
-          animateTo.entryAnimation.descriptionObject
+          this.animations.entryAnimation.descriptionArray,
+          this.animations.entryAnimation.descriptionObject
           );
-        entryAnimation.play();
+        // play the animations
 
+        exitAnimation.play();
+        entryAnimation.play();
+        // on finishing 
         exitAnimation.onfinish = () => {
           // notify all pages of finished exit animation
-          this.animation.exitPlaying = false;
-          this.notifyPath('animation.exitPlaying');
-          // remove animating class from the animateFrom page
+          this.exitPlaying = false;
+
+          // hide the exit page and remove the animating class
           animateFrom.classList && animateFrom.classList.remove('animating');
           animateFrom.classList && animateFrom.classList.remove('page');
+          this._allFinished(true, false);
         }
-
         entryAnimation.onfinish = () => {
           // notify all pages of finished entry animation
-          this.animation.entryPlaying = false;
-          this.notifyPath('animation.entryPlaying');
-
-          // remove animating class animateto page
+          this.entryPlaying = false;
+          // remove the animating class
           animateTo.classList && animateTo.classList.remove('animating');
-          //change route
-          // only set this if we are going forward
-          if (direction == 'forwards') {
-            console.log(direction);
-            this.set('route.path', this.animation.to + '/');
-          }
 
-          //this.route.path = '/' + this.animation.to + '/'
-          this.animating = false;
+          this._allFinished(false, true);
         };
 
       }
 
-      _loadFailed(err) {
-        console.log(err)
+      _allFinished(exit, entry) {
+        if (exit == true) {
+          this.allFinished.exit = true;
+        }
+        if (entry == true) {
+          this.allFinished.entry = true;
+        }
+        if (this.allFinished.exit == true && this.allFinished.entry == true) {
+
+          this.animations = null;
+
+          this.allFinished.entry = false;
+          this.allFinished.exit = false;
+        }
       }
 
-      _page() {
-        if (this.animating == false && this.pageHistory.length > 1) {
-          this._animateBack(this.pageHistory);
-        } else {
-          this.pageHistory.push(this.route.path);
-          if (this.pageHistory.length > 2) {
-            this.pageHistory.shift();
-          }
-        }
-        // you just landed or hit refresh
-        if ((this.pageHistory[0] == this.pageHistory[1]) || this.pageHistory.length < 1) {
-          console.log('You just landed or refreshed');
-        }
-        const pages = Polymer.dom(this.$.pages).getDistributedNodes();
-        let startPage = true;
-        for (let page, i = 0; page = pages[i]; i++) {
-          if (page) {
-            if (this.route.path.split('/').join('') == page.id) {
-              startPage = false;
-            }
-          }
-        }
-        if (startPage) {
-          for (let page, i = 0; page = pages[i]; i++) {
-            if (page) {
-              if (page.id == 'welcome') {
-                page.classList && page.classList.add('page');
-              }
-              else {
-                page.classList && page.classList.remove('animating');
-              }
-            }
-          }
-        }
-        else {
-          for (let page, i = 0; page = pages[i]; i++) {
-            if (page) {
-              if (this.route.path.split('/').join('') == page.id) {
-                page.classList && page.classList.add('page');
-              }
-              else {
-                page.classList && page.classList.remove('animating');
-              }
-            }
-          }
-        }
+      _loadFailed(err) {
+        console.log('error' + err)
       }
     } window.customElements.define(FaffysAnimatedPages.is, FaffysAnimatedPages);
   </script>
