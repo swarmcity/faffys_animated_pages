@@ -110,7 +110,7 @@
         if (this.route.path == '/') {
           this.toLoad = this.startPage;
         } else {
-          this.toLoad = this.route.path.split('/').join('');
+          this.toLoad = this.route.path.split('/')[1];
         }
         this._routeHistory();
         this._importPage();
@@ -121,7 +121,7 @@
         if (this.route.path == '/') {
           temp.push(this.startPage);
         } else {
-          temp.push(this.route.path.split('/').join(''));
+          temp.push(this.route.path.split('/')[1]);
         }
 
         if (temp.length < 2) {
