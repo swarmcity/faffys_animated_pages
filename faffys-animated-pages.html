@@ -172,9 +172,6 @@
         animateTo.classList && animateTo.classList.add('page');
         // notify all pages of running exit animation
 
-        this.entryPlaying = true;
-        this.exitPlaying = true;
-
         // prepare exit and entry animations  
         let exitAnimation = animateFrom.animate
           (
@@ -192,17 +189,12 @@
         entryAnimation.play();
         // on finishing 
         exitAnimation.onfinish = () => {
-          // notify all pages of finished exit animation
-          this.exitPlaying = false;
-
           // hide the exit page and remove the animating class
           animateFrom.classList && animateFrom.classList.remove('animating');
           animateFrom.classList && animateFrom.classList.remove('page');
           this._allFinished(true, false);
         }
         entryAnimation.onfinish = () => {
-          // notify all pages of finished entry animation
-          this.entryPlaying = false;
           // remove the animating class
           animateTo.classList && animateTo.classList.remove('animating');
 
