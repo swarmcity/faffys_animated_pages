@@ -87,10 +87,6 @@
             type: String,
             value: 'welcome'
           },
-          allFinished: {
-            type: Object,
-            value: { exit: false, entry: false },
-          },
           animations: {
             type: Object,
           },
@@ -165,12 +161,9 @@
       }
 
       _animate(animateFrom, animateTo) {
-        // add animating class to outgoing and incoming pages.
+        // remove page class from page and assign it the animating class
+        animateFrom.classList && animateFrom.classList.remove('page');
         animateFrom.classList && animateFrom.classList.add('animating');
-        animateTo.classList && animateTo.classList.add('animating');
-        animateFrom.classList && animateFrom.classList.add('page');
-        animateTo.classList && animateTo.classList.add('page');
-        // notify all pages of running exit animation
 
         // prepare exit and entry animations  
         let exitAnimation = animateFrom.animate
@@ -183,44 +176,26 @@
           this.animations.entryAnimation.descriptionArray,
           this.animations.entryAnimation.descriptionObject
           );
-        // play the animations
 
-        exitAnimation.play();
-        entryAnimation.play();
-        // on finishing 
+        // play the animations
         exitAnimation.onfinish = () => {
-          // hide the exit page and remove the animating class
+          // remove the animating class from exiting page
           animateFrom.classList && animateFrom.classList.remove('animating');
-          animateFrom.classList && animateFrom.classList.remove('page');
-          this._allFinished(true, false);
+          // assign the animating class to incoming page
+          animateTo.classList && animateTo.classList.add('animating');
         }
         entryAnimation.onfinish = () => {
-          // remove the animating class
+          // remove the animating class from incoming page
           animateTo.classList && animateTo.classList.remove('animating');
-
-          this._allFinished(false, true);
-        };
-
-      }
-
-      _allFinished(exit, entry) {
-        if (exit == true) {
-          this.allFinished.exit = true;
-        }
-        if (entry == true) {
-          this.allFinished.entry = true;
-        }
-        if (this.allFinished.exit == true && this.allFinished.entry == true) {
-
+          // assign the page class to incoming page
+          animateTo.classList && animateTo.classList.add('page');
           this.animations = null;
-
-          this.allFinished.entry = false;
-          this.allFinished.exit = false;
-        }
+        };
       }
 
       _loadFailed(err) {
-        console.log('error' + err)
+        console.log('error');
+        console.log(err);
       }
     } window.customElements.define(FaffysAnimatedPages.is, FaffysAnimatedPages);
   </script>
