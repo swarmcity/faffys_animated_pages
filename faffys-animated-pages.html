@@ -162,8 +162,6 @@
 
       _animate(animateFrom, animateTo) {
         // remove page class from page and assign it the animating class
-        animateFrom.classList && animateFrom.classList.remove('page');
-        animateFrom.classList && animateFrom.classList.add('animating');
 
         // prepare exit and entry animations  
         let exitAnimation = animateFrom.animate
@@ -179,16 +177,10 @@
 
         // play the animations
         exitAnimation.onfinish = () => {
-          // remove the animating class from exiting page
-          animateFrom.classList && animateFrom.classList.remove('animating');
-          // assign the animating class to incoming page
-          animateTo.classList && animateTo.classList.add('animating');
+          animateFrom.classList && animateFrom.classList.remove('page');
+          animateTo.classList && animateTo.classList.add('page');
         }
         entryAnimation.onfinish = () => {
-          // remove the animating class from incoming page
-          animateTo.classList && animateTo.classList.remove('animating');
-          // assign the page class to incoming page
-          animateTo.classList && animateTo.classList.add('page');
           this.animations = null;
         };
       }
