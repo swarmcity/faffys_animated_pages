@@ -80,6 +80,14 @@
             value: [],
             notify: true,
           },
+          /**
+          * routeSwitch changes the exact moment pages change when routing
+          * @type {Array}
+          */
+          routeSwitch: {
+            type: Array,
+            notify: true,
+          },
           toLoad: {
             type: String,
           },
@@ -179,6 +187,11 @@
         exitAnimation.onfinish = () => {
           animateFrom.classList && animateFrom.classList.remove('page');
           animateTo.classList && animateTo.classList.add('page');
+          this.routeSwitch = [
+            this.routeHistory[0],
+            this.routeHistory[1],
+          ]
+      
         }
         entryAnimation.onfinish = () => {
           this.animations = null;
