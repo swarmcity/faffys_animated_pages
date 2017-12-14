@@ -50,7 +50,6 @@
             type: Object,
             observer: '_routeChanged'
           },
-
           /**
           * True if the animate to page is loading
           */
@@ -75,16 +74,20 @@
             type: String,
             value: 'src/pages/page-',
           },
-          routeHistory: {
+          /**
+          * routeExit signals the start of exit animation
+          * @type {Array}
+          */
+          routeExit: {
             type: Array,
             value: [],
             notify: true,
           },
           /**
-          * routeSwitch changes the exact moment pages change when routing
+          * routeExit signals the start of entry animation
           * @type {Array}
           */
-          routeSwitch: {
+          routeEntry: {
             type: Array,
             notify: true,
           },
@@ -116,12 +119,12 @@
         } else {
           this.toLoad = this.route.path.split('/')[1];
         }
-        this._routeHistory();
+        this._routeExit();
         this._importPage();
       }
 
-      _routeHistory() {
-        let temp = this.routeHistory;
+      _routeExit() {
+        let temp = this.routeExit;
         if (this.route.path == '/') {
           temp.push(this.startPage);
         } else {
@@ -129,24 +132,24 @@
         }
 
         if (temp.length < 2) {
-          this.routeHistory = [
+          this.routeExit = [
             temp[0],
           ]
         }
         else if (temp.length < 3) {
-          this.routeHistory = [
+          this.routeExit = [
             temp[0],
             temp[1],
           ]
         }
         else {
-          this.routeHistory = [
+          this.routeExit = [
             temp[1],
             temp[2],
           ]
         }
-        if (this.routeHistory.length > 2) {
-          this.routeHistory.shift();
+        if (this.routeExit.length > 2) {
+          this.routeExit.shift();
         }
       };
 
@@ -156,9 +159,9 @@
       };
 
       _loadComplete(e) {
-        if (this.routeHistory.length > 1 && this.routeHistory[0] != this.routeHistory[1]) {
-          let animateFrom = this.$.pages.assignedNodes().find(e => e.id === this.routeHistory[0]);
-          let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.routeHistory[1]);
+        if (this.routeExit.length > 1 && this.routeExit[0] != this.routeExit[1]) {
+          let animateFrom = this.$.pages.assignedNodes().find(e => e.id === this.routeExit[0]);
+          let animateTo = this.$.pages.assignedNodes().find(e => e.id === this.routeExit[1]);
           this._animate(animateFrom, animateTo);
         }
         else {
@@ -187,9 +190,9 @@
         exitAnimation.onfinish = () => {
           animateFrom.classList && animateFrom.classList.remove('page');
           animateTo.classList && animateTo.classList.add('page');
-          this.routeSwitch = [
-            this.routeHistory[0],
-            this.routeHistory[1],
+          this.routeEntry = [
+            this.routeExit[0],
+            this.routeExit[1],
           ]
       
         }
